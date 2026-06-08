@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>DevByte – Cyber Security Event | طنطا</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#050a12;
+  --surface:#0a1628;
+  --surface2:#0d1f3c;
+  --accent:#00d4ff;
+  --accent2:#0077ff;
+  --green:#00ff88;
+  --red:#ff3355;
+  --text:#e8f4ff;
+  --muted:#4a7a9b;
+  --border:#1a3a5c;
+}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Cairo',sans-serif;
+  overflow-x:hidden;
+  cursor:none;
+}
+/* CUSTOM CURSOR */
+#cursor{
+  width:12px;height:12px;
+  background:var(--accent);
+  border-radius:50%;
+  position:fixed;top:0;left:0;
+  pointer-events:none;z-index:9999;
+  transition:transform .15s ease;
+  mix-blend-mode:screen;
+}
+#cursor-ring{
+  width:36px;height:36px;
+  border:1px solid var(--accent);
+  border-radius:50%;
+  position:fixed;top:0;left:0;
+  pointer-events:none;z-index:9998;
+  opacity:0.5;
+  transition:all .3s ease;
+}
+
+/* MATRIX CANVAS */
+#matrix-canvas{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  opacity:0.06;z-index:0;pointer-events:none;
+}
+
+/* NOISE OVERLAY */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  opacity:0.03;z-index:1;pointer-events:none;
+}
+
+.container{max-width:900px;margin:0 auto;padding:0 2rem;position:relative;z-index:2}
+
+/* ===== NAVBAR ===== */
+nav{
+  position:fixed;top:0;width:100%;z-index:100;
+  padding:1rem 2rem;
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(5,10,18,0.85);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+}
+.logo{
+  font-family:'Share Tech Mono',monospace;
+  font-size:1.2rem;color:var(--accent);
+  letter-spacing:2px;
+}
+.logo span{color:var(--green);animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.nav-tag{
+  font-family:'Share Tech Mono',monospace;
+  font-size:11px;color:var(--muted);
+  border:1px solid var(--border);
+  padding:4px 12px;border-radius:4px;
+  letter-spacing:1px;
+}
+
+/* ===== HERO ===== */
+.hero{
+  min-height:100vh;
+  display:flex;align-items:center;
+  padding:8rem 0 4rem;
+  position:relative;overflow:hidden;
+}
+.hero-grid{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(0,212,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,255,0.04) 1px, transparent 1px);
+  background-size:60px 60px;
+  animation:gridmove 20s linear infinite;
+}
+@keyframes gridmove{0%{transform:translateY(0)}100%{transform:translateY(60px)}}
+
+.hero-content{text-align:right;position:relative}
+.status-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(0,255,136,0.08);
+  border:1px solid rgba(0,255,136,0.25);
+  padding:7px 18px;border-radius:99px;
+  font-size:12px;font-family:'Share Tech Mono',monospace;
+  color:var(--green);margin-bottom:2rem;
+  animation:fadedown .8s ease forwards;
+  opacity:0;transform:translateY(-10px);
+}
+.status-badge .live-dot{
+  width:8px;height:8px;background:var(--green);border-radius:50%;
+  box-shadow:0 0 8px var(--green);
+  animation:pulse 1.5s infinite;
+}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.4);opacity:0.6}}
+
+.hero h1{
+  font-size:clamp(2.5rem,6vw,5rem);
+  font-weight:900;
+  line-height:1.15;
+  margin-bottom:1.2rem;
+  opacity:0;animation:fadein .9s ease .2s forwards;
+}
+.hero h1 .line1{display:block;color:var(--text)}
+.hero h1 .line2{
+  display:block;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.hero h1 .line3{display:block;color:var(--green);font-size:70%}
+
+.hero-sub{
+  font-size:1.05rem;color:var(--muted);
+  line-height:1.8;max-width:540px;margin-right:0;margin-left:auto;
+  text-align:right;
+  opacity:0;animation:fadein .9s ease .4s forwards;
+  margin-bottom:2.5rem;
+}
+
+.hero-actions{
+  display:flex;gap:1rem;justify-content:flex-start;flex-wrap:wrap;
+  opacity:0;animation:fadein .9s ease .6s forwards;
+  flex-direction:row-reverse;
+}
+.btn-primary{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--accent);color:var(--bg);
+  font-family:'Cairo',sans-serif;font-weight:700;font-size:0.95rem;
+  padding:13px 28px;border-radius:8px;
+  border:none;cursor:none;
+  transition:all .2s ease;
+  text-decoration:none;
+  box-shadow:0 0 30px rgba(0,212,255,0.3);
+}
+.btn-primary:hover{
+  transform:translateY(-2px);
+  box-shadow:0 0 50px rgba(0,212,255,0.5);
+  background:#1ae0ff;
+}
+.btn-secondary{
+  display:inline-flex;align-items:center;gap:8px;
+  background:transparent;color:var(--accent);
+  font-family:'Cairo',sans-serif;font-weight:600;font-size:0.95rem;
+  padding:13px 28px;border-radius:8px;
+  border:1px solid var(--accent);cursor:none;
+  transition:all .2s ease;text-decoration:none;
+}
+.btn-secondary:hover{background:rgba(0,212,255,0.08);transform:translateY(-2px)}
+
+/* FLOATING CODE BLOCK */
+.code-float{
+  position:absolute;left:-20px;top:50%;transform:translateY(-50%);
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;padding:1.2rem 1.5rem;
+  font-family:'Share Tech Mono',monospace;font-size:12px;
+  line-height:1.9;opacity:0.7;
+  animation:float 6s ease-in-out infinite, fadein 1s ease .8s forwards;
+  opacity:0;
+  min-width:220px;
+}
+@keyframes float{0%,100%{transform:translateY(-50%) rotate(-1deg)}50%{transform:translateY(-55%) rotate(1deg)}}
+.code-float .c-green{color:var(--green)}
+.code-float .c-blue{color:var(--accent)}
+.code-float .c-red{color:var(--red)}
+.code-float .c-muted{color:var(--muted)}
+
+/* ===== TRACKS ===== */
+.section{padding:6rem 0}
+.section-label{
+  font-family:'Share Tech Mono',monospace;
+  font-size:11px;color:var(--accent);
+  letter-spacing:3px;text-transform:uppercase;
+  margin-bottom:0.8rem;
+}
+.section-title{
+  font-size:clamp(1.8rem,3vw,2.8rem);
+  font-weight:900;margin-bottom:0.5rem;
+  line-height:1.2;
+}
+.section-sub{color:var(--muted);font-size:1rem;margin-bottom:3rem;line-height:1.7}
+
+.tracks-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.5rem}
+.track-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:16px;padding:2rem;
+  position:relative;overflow:hidden;
+  cursor:none;
+  transition:all .3s ease;
+  opacity:0;transform:translateY(30px);
+}
+.track-card.visible{animation:rise .6s ease forwards}
+@keyframes rise{to{opacity:1;transform:translateY(0)}}
+.track-card::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 80% 20%, rgba(0,212,255,0.06), transparent 60%);
+  opacity:0;transition:.3s;
+}
+.track-card:hover::before{opacity:1}
+.track-card:hover{
+  border-color:rgba(0,212,255,0.35);
+  transform:translateY(-4px);
+  box-shadow:0 20px 60px rgba(0,0,0,0.4);
+}
+.track-icon{
+  font-size:2.5rem;margin-bottom:1rem;display:block;
+  filter:drop-shadow(0 0 12px rgba(0,212,255,0.4));
+}
+.track-name{font-size:1.3rem;font-weight:700;margin-bottom:0.5rem;color:var(--accent)}
+.track-desc{font-size:0.9rem;color:var(--muted);line-height:1.7}
+.track-tag{
+  display:inline-block;margin-top:1rem;
+  font-family:'Share Tech Mono',monospace;font-size:10px;
+  color:var(--green);background:rgba(0,255,136,0.08);
+  border:1px solid rgba(0,255,136,0.2);
+  padding:3px 10px;border-radius:4px;letter-spacing:1px;
+}
+
+/* ===== REGISTRATION ===== */
+.reg-section{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:24px;padding:3rem;
+  position:relative;overflow:hidden;
+}
+.reg-section::after{
+  content:'';position:absolute;
+  bottom:-100px;right:-100px;
+  width:400px;height:400px;
+  background:radial-gradient(circle,rgba(0,212,255,0.08),transparent 70%);
+  pointer-events:none;
+}
+.reg-section::before{
+  content:'';position:absolute;
+  top:-100px;left:-100px;
+  width:350px;height:350px;
+  background:radial-gradient(circle,rgba(0,119,255,0.06),transparent 70%);
+  pointer-events:none;
+}
+.reg-form{display:flex;flex-direction:column;gap:1rem;margin-top:2rem;position:relative;z-index:1}
+.input-group{display:flex;flex-direction:column;gap:6px}
+.input-group label{
+  font-size:13px;color:var(--muted);
+  font-family:'Share Tech Mono',monospace;letter-spacing:1px;
+}
+.reg-input{
+  background:var(--bg);
+  border:1px solid var(--border);
+  border-radius:10px;padding:13px 16px;
+  color:var(--text);font-family:'Cairo',sans-serif;
+  font-size:0.95rem;outline:none;
+  transition:all .25s ease;
+  direction:rtl;width:100%;
+}
+.reg-input:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(0,212,255,0.1);
+}
+.reg-input::placeholder{color:var(--muted);opacity:0.6}
+.track-select{display:flex;flex-wrap:wrap;gap:10px;margin-top:4px}
+.track-btn{
+  display:flex;align-items:center;gap:6px;
+  background:var(--bg);border:1px solid var(--border);
+  color:var(--muted);border-radius:8px;
+  padding:9px 16px;font-family:'Cairo',sans-serif;font-size:14px;
+  cursor:none;transition:all .2s;
+}
+.track-btn.active{
+  background:rgba(0,212,255,0.1);
+  border-color:var(--accent);color:var(--accent);
+}
+.track-btn:hover{border-color:var(--muted);color:var(--text)}
+.submit-btn{
+  background:linear-gradient(135deg,var(--accent2),var(--accent));
+  color:var(--bg);font-family:'Cairo',sans-serif;
+  font-weight:700;font-size:1rem;
+  padding:14px 28px;border-radius:10px;border:none;
+  cursor:none;transition:all .25s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  box-shadow:0 0 30px rgba(0,212,255,0.25);
+  margin-top:0.5rem;
+}
+.submit-btn:hover{transform:translateY(-2px);box-shadow:0 0 50px rgba(0,212,255,0.4)}
+.submit-btn:disabled{opacity:0.5;transform:none}
+.success-msg{
+  display:none;text-align:center;padding:2rem;
+  animation:fadein .5s ease forwards;
+}
+.success-msg .big-check{font-size:3rem;margin-bottom:1rem}
+.success-msg h3{color:var(--green);font-size:1.5rem;margin-bottom:0.5rem}
+.success-msg p{color:var(--muted);font-size:0.95rem}
+
+/* ===== COUNTDOWN ===== */
+.countdown-bar{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:16px;padding:2rem;margin-bottom:2rem;
+  text-align:center;position:relative;overflow:hidden;
+}
+.countdown-bar::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--accent2),var(--accent),var(--green));
+}
+.countdown-label{
+  font-family:'Share Tech Mono',monospace;font-size:11px;
+  color:var(--muted);letter-spacing:2px;margin-bottom:1rem;
+}
+.countdown-nums{display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap}
+.c-unit{text-align:center}
+.c-num{
+  font-family:'Share Tech Mono',monospace;
+  font-size:2.5rem;font-weight:700;
+  color:var(--accent);display:block;
+  text-shadow:0 0 20px rgba(0,212,255,0.5);
+}
+.c-label{font-size:11px;color:var(--muted);letter-spacing:1px}
+
+/* ===== REGISTERED LIST ===== */
+.reg-list{margin-top:2rem}
+.reg-list-title{
+  font-family:'Share Tech Mono',monospace;font-size:11px;
+  color:var(--green);letter-spacing:2px;margin-bottom:1rem;
+  display:flex;align-items:center;gap:8px;
+}
+.reg-list-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.reg-items{display:flex;flex-direction:column;gap:8px}
+.reg-item{
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(0,255,136,0.04);
+  border:1px solid rgba(0,255,136,0.1);
+  border-radius:8px;padding:10px 14px;
+  font-size:13px;
+  animation:slidein .4s ease forwards;
+}
+@keyframes slidein{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+.reg-item-name{color:var(--text);font-weight:600}
+.reg-item-track{
+  font-family:'Share Tech Mono',monospace;font-size:10px;
+  color:var(--green);background:rgba(0,255,136,0.08);
+  padding:2px 8px;border-radius:4px;
+}
+.reg-count{
+  text-align:center;margin-top:1rem;
+  font-family:'Share Tech Mono',monospace;font-size:12px;
+  color:var(--muted);
+}
+.reg-count span{color:var(--accent);font-size:1.5rem;font-weight:700;display:block}
+
+/* ===== INFO CARDS ===== */
+.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin:2rem 0}
+.info-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;padding:1.2rem;text-align:center;
+}
+.info-card .ic-icon{font-size:1.8rem;margin-bottom:0.5rem}
+.info-card .ic-val{font-size:1.2rem;font-weight:700;color:var(--accent);display:block}
+.info-card .ic-label{font-size:12px;color:var(--muted)}
+
+/* ===== FOOTER ===== */
+footer{
+  text-align:center;padding:3rem 2rem 2rem;
+  border-top:1px solid var(--border);
+  font-family:'Share Tech Mono',monospace;font-size:12px;
+  color:var(--muted);letter-spacing:1px;
+}
+footer span{color:var(--accent)}
+
+/* ANIMS */
+@keyframes fadein{to{opacity:1;transform:none}}
+@keyframes fadedown{to{opacity:1;transform:translateY(0)}}
+
+/* GLITCH on hover h1 */
+.glitch{position:relative;display:inline-block}
+.glitch:hover::after{
+  content:attr(data-text);
+  position:absolute;left:2px;top:0;
+  color:var(--accent2);
+  clip:rect(0,900px,0,0);
+  animation:glitch .3s steps(2,end) forwards;
+}
+@keyframes glitch{
+  0%{clip:rect(20px,900px,30px,0)}
+  25%{clip:rect(5px,900px,50px,0)}
+  50%{clip:rect(40px,900px,15px,0)}
+  100%{clip:rect(0,900px,0,0)}
+}
+
+/* SCAN LINE */
+.scanline{
+  position:fixed;top:0;left:0;width:100%;height:3px;
+  background:rgba(0,212,255,0.15);
+  animation:scan 8s linear infinite;z-index:200;pointer-events:none;
+}
+@keyframes scan{0%{top:-3px}100%{top:100%}}
+
+/* Scroll indicator */
+.scroll-ind{
+  position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);
+  animation:bob 2s ease-in-out infinite;
+}
+.scroll-arrow{width:1px;height:40px;background:linear-gradient(var(--accent),transparent)}
+@keyframes bob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(6px)}}
+
+@media(max-width:700px){
+  .code-float{display:none}
+  .hero{padding:6rem 0 3rem}
+  .reg-section{padding:2rem 1.5rem}
+  .countdown-nums{gap:1rem}
+  .c-num{font-size:2rem}
+}
+</style>
+</head>
+<body>
+
+<!-- Cursor -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- Scanline effect -->
+<div class="scanline"></div>
+
+<!-- Matrix rain -->
+<canvas id="matrix-canvas"></canvas>
+
+<!-- NAVBAR -->
+<nav>
+  <div class="logo">DEV<span>_</span>BYTE</div>
+  <div class="nav-tag">TANTA // CYBER_EVENT</div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="container" style="display:grid;grid-template-columns:1fr auto;gap:4rem;align-items:center">
+    <div class="hero-content">
+      <div class="status-badge">
+        <div class="live-dot"></div>
+        REGISTRATION_OPEN :: FREE EVENT
+      </div>
+      <h1>
+        <span class="line1 glitch" data-text="السيشن الأقوى">السيشن الأقوى</span>
+        <span class="line2">Cyber Security</span>
+        <span class="line3">// طنطا . الغربية . مجاني 100%</span>
+      </h1>
+      <p class="hero-sub">
+        شركة DevByte بتفتح أبوابها في طنطا لأول مرة — سيشن مجانية في عالم الأمن السيبراني. سواء بتبدأ من الصفر أو بتدور على تخصص، ده وقتك.
+      </p>
+      <div class="hero-actions">
+        <a href="#register" class="btn-primary">🔐 سجّل دلوقتي</a>
+        <a href="#tracks" class="btn-secondary">اعرف أكتر ◀</a>
+      </div>
+    </div>
+
+    <div class="code-float" id="codeFloat">
+      <div class="c-muted">// target: TANTA_DEVS</div>
+      <div><span class="c-green">scan</span><span class="c-muted">(</span><span class="c-blue">"cyber_sec"</span><span class="c-muted">)</span></div>
+      <div><span class="c-green">find</span><span class="c-muted">(</span><span class="c-blue">"red_team"</span><span class="c-muted">)</span></div>
+      <div><span class="c-green">find</span><span class="c-muted">(</span><span class="c-blue">"pen_test"</span><span class="c-muted">)</span></div>
+      <div class="c-muted">// status:</div>
+      <div><span class="c-red">FREE</span> <span class="c-muted">= </span><span class="c-green">true</span></div>
+      <div><span class="c-red">SEATS</span> <span class="c-muted">= </span><span class="c-blue">"limited"</span></div>
+      <div class="c-muted">// register now ↓</div>
+    </div>
+  </div>
+  <div class="scroll-ind">
+    <div class="scroll-arrow"></div>
+    SCROLL
+  </div>
+</section>
+
+<!-- TRACKS -->
+<section class="section" id="tracks">
+  <div class="container">
+    <div class="section-label">// TRACKS</div>
+    <h2 class="section-title">إيه اللي هتتعلمه؟</h2>
+    <p class="section-sub">٣ محاور أساسية — كل واحد فيهم هيفتحلك باب في عالم مختلف</p>
+    <div class="tracks-grid">
+      <div class="track-card" data-reveal>
+        <span class="track-icon">🎯</span>
+        <div class="track-name">Red Team</div>
+        <div class="track-desc">تعلم تفكر زي المهاجم — Red Team Operations هي فن محاكاة الهجمات الحقيقية لاكتشاف ثغرات المنظومة قبل ما حد تاني يلاقيها.</div>
+        <span class="track-tag">OFFENSIVE_SEC</span>
+      </div>
+      <div class="track-card" data-reveal>
+        <span class="track-icon">🛡️</span>
+        <div class="track-name">Penetration Testing</div>
+        <div class="track-desc">Pen Testing هو أهم مهارة في سوق الشغل دلوقتي — هتشوف إزاي المحترفين بيختبروا الأنظمة بطريقة منهجية ومحترفة.</div>
+        <span class="track-tag">PENTEST_101</span>
+      </div>
+      <div class="track-card" data-reveal>
+        <span class="track-icon">🔍</span>
+        <div class="track-name">Cyber Security</div>
+        <div class="track-desc">الأساسيات اللي كل واحد لازم يعرفها — من مفاهيم الشبكات لحد أدوات الحماية والـ Threat Intelligence.</div>
+        <span class="track-tag">FUNDAMENTALS</span>
+      </div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-card"><div class="ic-icon">📍</div><span class="ic-val">طنطا</span><div class="ic-label">الغربية، مصر</div></div>
+      <div class="info-card"><div class="ic-icon">💰</div><span class="ic-val">مجاني</span><div class="ic-label">بالكامل</div></div>
+      <div class="info-card"><div class="ic-icon">🎟️</div><span class="ic-val" id="seatsLeft">LIMITED</span><div class="ic-label">أماكن متاحة</div></div>
+      <div class="info-card"><div class="ic-icon">⚡</div><span class="ic-val">LIVE</span><div class="ic-label">تسجيل مفتوح</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- REGISTER -->
+<section class="section" id="register">
+  <div class="container">
+    <div class="section-label">// REGISTRATION</div>
+    <h2 class="section-title">احجز مكانك دلوقتي</h2>
+    <p class="section-sub">الأماكن محدودة — سجّل اسمك وانت متطمن إن مكانك متحجوز</p>
+
+    <!-- Countdown -->
+    <div class="countdown-bar">
+      <div class="countdown-label">// TIME_SINCE_OPENING</div>
+      <div class="countdown-nums">
+        <div class="c-unit"><span class="c-num" id="cd-h">00</span><div class="c-label">HOURS</div></div>
+        <div class="c-unit"><span class="c-num" id="cd-m">00</span><div class="c-label">MINUTES</div></div>
+        <div class="c-unit"><span class="c-num" id="cd-s">00</span><div class="c-label">SECONDS</div></div>
+      </div>
+    </div>
+
+    <div class="reg-section">
+      <div id="regFormWrap">
+        <div class="reg-form">
+          <div class="input-group">
+            <label>// YOUR_NAME</label>
+            <input class="reg-input" id="nameInput" type="text" placeholder="اسمك الكامل هنا..." autocomplete="off"/>
+          </div>
+          <div class="input-group">
+            <label>// TRACK_SELECT</label>
+            <div class="track-select" id="trackSelect">
+              <button class="track-btn active" data-track="Red Team" onclick="selectTrack(this)">🎯 Red Team</button>
+              <button class="track-btn" data-track="Pen Testing" onclick="selectTrack(this)">🛡️ Pen Testing</button>
+              <button class="track-btn" data-track="Cyber Security" onclick="selectTrack(this)">🔍 Cyber Security</button>
+            </div>
+          </div>
+          <button class="submit-btn" id="submitBtn" onclick="register()">
+            <span id="btnText">تسجيل الاشتراك 🚀</span>
+          </button>
+        </div>
+      </div>
+      <div class="success-msg" id="successMsg">
+        <div class="big-check">✅</div>
+        <h3>تم التسجيل بنجاح!</h3>
+        <p id="successName"></p>
+        <p style="margin-top:.5rem;color:var(--accent);font-family:'Share Tech Mono',monospace;font-size:12px">هيتواصل معاك قريباً لإضافتك للجروب</p>
+      </div>
+
+      <!-- Live registrations list -->
+      <div class="reg-list" id="regList" style="display:none">
+        <div class="reg-list-title">REGISTERED_USERS</div>
+        <div class="reg-items" id="regItems"></div>
+        <div class="reg-count"><span id="regCountNum">0</span>مسجل حتى الآن</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div>Made with 🔐 by <span>DevByte</span> — طنطا، الغربية</div>
+  <div style="margin-top:.5rem;font-size:10px;opacity:.5">devbyte_event © 2025 // all_rights_reserved</div>
+</footer>
+
+<script>
+// ===== CURSOR =====
+const cur=document.getElementById('cursor');
+const ring=document.getElementById('cursor-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX;my=e.clientY;
+  cur.style.transform=`translate(${mx-6}px,${my-6}px)`;
+});
+function animRing(){
+  rx+=(mx-rx-18)*.12;
+  ry+=(my-ry-18)*.12;
+  ring.style.transform=`translate(${rx}px,${ry}px)`;
+  requestAnimationFrame(animRing);
+}animRing();
+document.querySelectorAll('a,button,.track-btn,.track-card').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{
+    cur.style.transform+=` scale(2)`;ring.style.opacity='0.8';ring.style.transform+=` scale(1.5)`;
+  });
+  el.addEventListener('mouseleave',()=>{
+    ring.style.opacity='0.5';
+  });
+});
+
+// ===== MATRIX RAIN =====
+const canvas=document.getElementById('matrix-canvas');
+const ctx=canvas.getContext('2d');
+function resizeCanvas(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
+resizeCanvas();window.addEventListener('resize',resizeCanvas);
+const chars='01アイウエオカキクケコサシスセソタチツテトナニヌネノABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*';
+const fontSize=14;
+let cols=Math.floor(canvas.width/fontSize);
+let drops=new Array(cols).fill(1);
+function drawMatrix(){
+  ctx.fillStyle='rgba(5,10,18,0.05)';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle='#00d4ff';
+  ctx.font=fontSize+'px Share Tech Mono, monospace';
+  for(let i=0;i<drops.length;i++){
+    const char=chars[Math.floor(Math.random()*chars.length)];
+    ctx.fillText(char,i*fontSize,drops[i]*fontSize);
+    if(drops[i]*fontSize>canvas.height&&Math.random()>.975)drops[i]=0;
+    drops[i]++;
+  }
+}
+setInterval(drawMatrix,50);
+
+// ===== COUNTDOWN (elapsed) =====
+const start=Date.now();
+function tick(){
+  const el=Math.floor((Date.now()-start)/1000);
+  const h=Math.floor(el/3600);
+  const m=Math.floor((el%3600)/60);
+  const s=el%60;
+  document.getElementById('cd-h').textContent=String(h).padStart(2,'0');
+  document.getElementById('cd-m').textContent=String(m).padStart(2,'0');
+  document.getElementById('cd-s').textContent=String(s).padStart(2,'0');
+}
+setInterval(tick,1000);tick();
+
+// ===== TRACK SELECT =====
+let selectedTrack='Red Team';
+function selectTrack(btn){
+  document.querySelectorAll('.track-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedTrack=btn.dataset.track;
+}
+
+// ===== REGISTRATION =====
+const registrations=[];
+function register(){
+  const name=document.getElementById('nameInput').value.trim();
+  if(!name){
+    document.getElementById('nameInput').style.borderColor='var(--red)';
+    document.getElementById('nameInput').placeholder='لازم تكتب اسمك الأول!';
+    setTimeout(()=>{
+      document.getElementById('nameInput').style.borderColor='';
+      document.getElementById('nameInput').placeholder='اسمك الكامل هنا...';
+    },2000);
+    return;
+  }
+  const btn=document.getElementById('submitBtn');
+  btn.disabled=true;
+  document.getElementById('btnText').textContent='⏳ جاري التسجيل...';
+  setTimeout(()=>{
+    registrations.push({name,track:selectedTrack});
+    document.getElementById('regFormWrap').style.display='none';
+    const suc=document.getElementById('successMsg');
+    suc.style.display='block';
+    document.getElementById('successName').textContent=`أهلاً ${name}! تم حجز مكانك في track "${selectedTrack}"`;
+    updateRegList();
+  },1400);
+}
+
+function updateRegList(){
+  if(registrations.length===0)return;
+  const list=document.getElementById('regList');
+  list.style.display='block';
+  const items=document.getElementById('regItems');
+  items.innerHTML='';
+  registrations.forEach((r,i)=>{
+    const el=document.createElement('div');
+    el.className='reg-item';
+    el.style.animationDelay=(i*.08)+'s';
+    el.innerHTML=`<div class="reg-item-name">👤 ${r.name}</div><div class="reg-item-track">${r.track}</div>`;
+    items.appendChild(el);
+  });
+  document.getElementById('regCountNum').textContent=registrations.length;
+}
+
+// ===== SCROLL REVEAL =====
+const observer=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.classList.add('visible');
+      observer.unobserve(e.target);
+    }
+  });
+},{threshold:.2});
+document.querySelectorAll('[data-reveal]').forEach((el,i)=>{
+  el.style.transitionDelay=(i*.15)+'s';
+  observer.observe(el);
+});
+
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    e.preventDefault();
+    document.querySelector(a.getAttribute('href')).scrollIntoView({behavior:'smooth'});
+  });
+});
+</script>
+</body>
+</html>
